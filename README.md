@@ -32,7 +32,7 @@ This will open Jupyter in your default web browser.
 
 ### GRACE Level 4 climate indicators 
 1. Ice Sheets (Greenland and Antarctica): https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/GRACE_Ice_Sheets_tutorial.ipynb
-2. Ocean Mass: https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/ocean_mass_tutorial.ipynb
+2. Ocean Mass: https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/Ocean_Mass_tutorial.ipynb
 
 Header info stored in the output text files is compatible with L4 datasets produced under RL0603 v04. This header info is read from header_text.py and can be modified to match future release metadata.
 
