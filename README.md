@@ -27,12 +27,12 @@ This will open Jupyter in your default web browser.
 ## Tutorials
 
 ### GRACE Level 3 User handbook case studies:
-1. Colorado River Basin: https://NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/Tellus_GRACE_TWS_basin_mean.ipynb
-2. Ocean Mass Budget: https://NASA-GRACE/GRACE-Analysis-Tutorials/GRACE_handbook_gmsl_budget.ipynb
+1. Colorado River Basin: https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/Tellus_GRACE_TWS_basin_mean.ipynb
+2. Ocean Mass Budget: https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/GRACE_handbook_gmsl_budget.ipynb
 
 ### GRACE Level 4 climate indicators 
-1. Ice Sheets (Greenland and Antarctica): https://NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/GRACE_Ice_Sheets_tutorial.ipynb
-2. Ocean Mass: https://NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/ocean_mass_tutorial.ipynb
+1. Ice Sheets (Greenland and Antarctica): https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/GRACE_Ice_Sheets_tutorial.ipynb
+2. Ocean Mass: https://github.com/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/ocean_mass_tutorial.ipynb
 
 Header info stored in the output text files is compatible with L4 datasets produced under RL0603 v04. This header info is read from header_text.py and can be modified to match future release metadata.
 
