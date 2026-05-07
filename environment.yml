@@ -1,0 +1,23 @@
+name: grace_notebooks
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - xarray
+  - netcdf4
+  - h5netcdf
+  - matplotlib
+  - cartopy
+  - gdal
+  - pyshp
+  - geopandas
+  - statsmodels
+  - fsspec
+  - s3fs
+  - requests
+  - python-dateutil
+  - jupyterlab
+  - notebook

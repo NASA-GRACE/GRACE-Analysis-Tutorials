@@ -1,0 +1,4 @@
+# Ignore the output directory and all its contents
+output/
+.ipynb_checkpoints/
+__pycache__/
