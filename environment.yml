@@ -21,3 +21,5 @@ dependencies:
   - python-dateutil
   - jupyterlab
   - notebook
+  - ipywidgets
+  - mamba       # Added to help Binder solve the environment faster
