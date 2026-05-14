@@ -2,3 +2,6 @@
 output/
 .ipynb_checkpoints/
 __pycache__/
+antarctica_mass*.txt
+ocean_mass_*.txt
+*.png
