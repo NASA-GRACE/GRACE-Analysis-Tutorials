@@ -18,8 +18,6 @@ Run these tutorials directly in your browser with no installation required.
 | **03: Ice Sheets**               | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/GRACE_Ice_Sheets_tutorial.ipynb) |
 | **04: Ocean Mass**               | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/Ocean_Mass_tutorial.ipynb) |
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NASA-GRACE/GRACE-Analysis-Tutorials/blob/main/Tellus_GRACE_TWS_basin_mean.ipynb)
-
 ### Steps to create the conda environment after installing Miniforge:
 1. Create the environment
 
