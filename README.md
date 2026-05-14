@@ -7,6 +7,8 @@ GRACE Mascons have been used for the terrestrial water storage variable along wi
 
 The notebooks can be run using a Miniforge / conda-forge environment to ensure a fully reproducible, cross-platform setup (Windows, macOS, Linux) without any Anaconda licensing dependencies.
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NASA-GRACE/GRACE-Analysis-Tutorials/main)
+
 ### Steps to create the conda environment after installing Miniforge:
 1. Create the environment
 
