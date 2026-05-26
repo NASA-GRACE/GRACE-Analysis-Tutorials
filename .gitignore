@@ -4,4 +4,5 @@ output/
 __pycache__/
 antarctica_mass*.txt
 ocean_mass_*.txt
+greenland_*.txt
 *.png
