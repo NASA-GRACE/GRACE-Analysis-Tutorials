@@ -261,12 +261,12 @@ def read_shapefile_multilayers(shapefile,xdim,ydim,layer_name):
     return marr,bbox
 
 #compute weighted area for this region_mask
-def area(lats):
+def area(lats, resolution=0.5):
     # Modules:
     from pyproj import Geod
     # Define WGS84 as CRS:
     geod = Geod(ellps='WGS84')
-    dx = 1/4.0 #mascon is half deg res so dx =1/4 
+    dx = resolution / 2 #half of the resolution e.g. mascon is half deg res so dx = 1/4 for mascon
     c_area = lambda lat: geod.polygon_area_perimeter(np.r_[-dx,dx,dx,-dx], lat+np.r_[-dx,-dx,dx,dx])[0]
     out = []
     for lat in lats:
