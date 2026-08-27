@@ -20,7 +20,7 @@ import numpy as np
 """
 
 #############################Trajectory Modeling Functions
-def fit_tsin(time, data, sig=None, poly_deg=1, freq=1, offsets=[], return_amp_phase=False, return_param_unc=False, chi2_cor=True, S2_G_GFO_shift=1):
+def fit_tsin(time, data, sig=None, poly_deg=1, freq=1, offsets=[], return_amp_phase=False, return_param_unc=False, chi2_cor=True, phase_shift_config=None):
     """
     Linear regression fitting a polynomial + quasi-periodic function with offsets. freq can be a float if there is one oscillation period with unknown phase
     or a itterable type if there is more than one oscillation contained in the signal such as an annual and half-annual period. All offsets that need to be fit
@@ -48,12 +48,21 @@ def fit_tsin(time, data, sig=None, poly_deg=1, freq=1, offsets=[], return_amp_ph
     """
     if hasattr(freq,"__iter__"): ang_freq = 2*np.pi*np.array(freq)
     else: ang_freq = 2*np.pi*np.array([freq]) #assume that not being iterable means it is a number
-    s_alias = 2*np.pi*np.array(365.25/161)
-    s_alias_index = -9999
-    ph_sh = 100 # days
-    ph_sh = ph_sh * 360/365 # change to degrees
-    if (s_alias in ang_freq):
-        s_alias_index = np.where(ang_freq == s_alias)
+
+    # Parse phase shift configuration (generalized approach)
+    phase_shift_indices = []
+    transition_idx = None
+    phase_shift_rad = 0.0
+
+    if phase_shift_config is not None:
+        phase_shift_indices = phase_shift_config.get('freq_indices', [])
+        transition_idx = phase_shift_config.get('transition_index', None)
+        phase_shift_days = phase_shift_config.get('phase_shift_days', 0.0)
+        apply_shift = phase_shift_config.get('apply_shift', 1)
+
+        # Convert phase shift from days to radians
+        phase_shift_rad = apply_shift * phase_shift_days * (2 * np.pi / 365)
+
     #construct the various pieces of the data kernal (G = f(x)) and construct it and the weight matrix (W = diag(1/sig))
     dheavyside_steps,unused_steps,periodic_coefs,poly_coefs = [],[],[],[]
     #this had more edge cases than I expected, but if the offset suggested is before the timeseries, after the timeseries, or if there are two steps between the same point the data kernal will be singular
@@ -62,17 +71,20 @@ def fit_tsin(time, data, sig=None, poly_deg=1, freq=1, offsets=[], return_amp_ph
         #checks for steps out of range of independent variable, and check for steps that are duplicated because of user error
         if step.sum()!=len(time) and step.sum()!=0 and (step.sum() not in list(map(sum,dheavyside_steps))): dheavyside_steps.append(step)
         else: unused_steps.append(off)
-    for afreq in ang_freq: #construct frequency coef
-        if(s_alias_index != -9999 and afreq == s_alias):
-            #print(afreq)
-            grfo_coefs_cos = np.cos(S2_G_GFO_shift * ph_sh/180*np.pi + afreq * time[163:])
-            grfo_coefs_sin = np.sin(S2_G_GFO_shift * ph_sh/180*np.pi + afreq * time[163:])
-            grac_coefs_cos = np.cos(afreq*time[:163])
-            grac_coefs_sin = np.sin(afreq*time[:163])
-            S2_coefs_sin = np.concatenate((grac_coefs_sin, grfo_coefs_sin))
-            S2_coefs_cos = np.concatenate((grac_coefs_cos, grfo_coefs_cos))
-            periodic_coefs += [S2_coefs_sin,S2_coefs_cos]
+
+    for i, afreq in enumerate(ang_freq): #construct frequency coef
+        # Check if this frequency needs phase shift
+        if i in phase_shift_indices and transition_idx is not None:
+            # Apply phase shift after transition index
+            grfo_coefs_cos = np.cos(phase_shift_rad + afreq * time[transition_idx:])
+            grfo_coefs_sin = np.sin(phase_shift_rad + afreq * time[transition_idx:])
+            grac_coefs_cos = np.cos(afreq*time[:transition_idx])
+            grac_coefs_sin = np.sin(afreq*time[:transition_idx])
+            coefs_sin = np.concatenate((grac_coefs_sin, grfo_coefs_sin))
+            coefs_cos = np.concatenate((grac_coefs_cos, grfo_coefs_cos))
+            periodic_coefs += [coefs_sin, coefs_cos]
         else:
+            # Standard sin/cos without phase shift
             periodic_coefs += [np.sin(afreq*time),np.cos(afreq*time)]
     for deg in range(poly_deg,-1,-1): #construct the inversion kernal for the polynomial
         poly_coefs.append(time**deg)
@@ -121,7 +133,7 @@ def fit_tsin(time, data, sig=None, poly_deg=1, freq=1, offsets=[], return_amp_ph
 
     return model, unused_steps
 
-def get_tsin(model, time, poly_deg=1,exclude_trend = 0, freq=1, offsets=[], is_amp_phase=False, S2_G_GFO_shift=1):
+def get_tsin(model, time, poly_deg=1, exclude_trend=0, freq=1, offsets=[], is_amp_phase=False, phase_shift_config=None):
     """
     get_tsin applies a fit_tsin model to a new independant variable (time) domain returning the predicted dependent variable
     freq and offsets must be of the same form as those passed to the original fit_tsin function used to generate the model
@@ -141,12 +153,21 @@ def get_tsin(model, time, poly_deg=1,exclude_trend = 0, freq=1, offsets=[], is_a
     """
     if hasattr(freq,"__iter__"): ang_freq = 2*np.pi*np.array(freq)
     else: ang_freq = 2*np.pi*np.array([freq]) #assume that not being iterable means it is a number
-    s_alias = 2*np.pi*np.array(365.25/161)
-    s_alias_index = -9999
-    ph_sh = 100 # days
-    ph_sh = ph_sh * 360/365 # change to degrees
-    if (s_alias in ang_freq):
-        s_alias_index = np.where(ang_freq == s_alias)
+
+    # Parse phase shift configuration (generalized approach)
+    phase_shift_indices = []
+    transition_idx = None
+    phase_shift_rad = 0.0
+
+    if phase_shift_config is not None:
+        phase_shift_indices = phase_shift_config.get('freq_indices', [])
+        transition_idx = phase_shift_config.get('transition_index', None)
+        phase_shift_days = phase_shift_config.get('phase_shift_days', 0.0)
+        apply_shift = phase_shift_config.get('apply_shift', 1)
+
+        # Convert phase shift from days to radians (using 365 to match original code)
+        phase_shift_rad = apply_shift * phase_shift_days * (2 * np.pi / 365)
+
     if is_amp_phase:
         for i in range(len(ang_freq)):
             A = model[2*i]*np.sin(ang_freq+model[2*i+1])
@@ -158,16 +179,20 @@ def get_tsin(model, time, poly_deg=1,exclude_trend = 0, freq=1, offsets=[], is_a
         step = (time>=off).astype(int)
         #checks for steps out of range of independent variable, and check for steps that are duplicated because of user error
         if step.sum()!=len(time) and step.sum()!=0 and (step.sum() not in list(map(sum,dheavyside_steps))): dheavyside_steps.append(step)
-    for afreq in ang_freq:
-        if(s_alias_index != -9999 and afreq == s_alias):
-            grfo_coefs_cos = np.cos(S2_G_GFO_shift * ph_sh/180*np.pi + afreq * time[163:])
-            grfo_coefs_sin = np.sin(S2_G_GFO_shift * ph_sh/180*np.pi + afreq * time[163:])
-            grac_coefs_cos = np.cos(afreq*time[:163])
-            grac_coefs_sin = np.sin(afreq*time[:163])
-            S2_coefs_sin = np.concatenate((grac_coefs_sin, grfo_coefs_sin))
-            S2_coefs_cos = np.concatenate((grac_coefs_cos, grfo_coefs_cos))
-            periodic_coefs += [S2_coefs_sin,S2_coefs_cos]
+
+    for i, afreq in enumerate(ang_freq):
+        # Check if this frequency needs phase shift
+        if i in phase_shift_indices and transition_idx is not None:
+            # Apply phase shift after transition index
+            grfo_coefs_cos = np.cos(phase_shift_rad + afreq * time[transition_idx:])
+            grfo_coefs_sin = np.sin(phase_shift_rad + afreq * time[transition_idx:])
+            grac_coefs_cos = np.cos(afreq*time[:transition_idx])
+            grac_coefs_sin = np.sin(afreq*time[:transition_idx])
+            coefs_sin = np.concatenate((grac_coefs_sin, grfo_coefs_sin))
+            coefs_cos = np.concatenate((grac_coefs_cos, grfo_coefs_cos))
+            periodic_coefs += [coefs_sin, coefs_cos]
         else:
+            # Standard sin/cos without phase shift
             periodic_coefs += [np.sin(afreq*time),np.cos(afreq*time)]
     for deg in range(poly_deg,-1,-1): #construct the inversion kernal for the polynomial
         poly_coefs.append(time**deg)
